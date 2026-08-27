@@ -2,7 +2,7 @@ import spacy
 import nltk
 from nltk.corpus import stopwords
 
-nltk.download("stopwords")          # fixed spelling
+nltk.download("stopwords")          
 nlp = spacy.load("en_core_web_sm")
 doc = nlp("I don't like cooking, I prefer eating!!!")
 stop_words = set(stopwords.words("english"))
