@@ -5,3 +5,7 @@ You've now completed all 5 exercises covering everything in Part 1 of the articl
 ✅ Custom tokenizer rules (ORTH)
 ✅ Sentence segmentation (doc.sents)
 ✅ Lemmatization
+✅ POS
+✅ Dep_.
+✅ NER
+✅ Matchers
