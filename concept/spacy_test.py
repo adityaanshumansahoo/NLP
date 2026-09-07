@@ -1,7 +1,9 @@
 import spacy
 
 nlp = spacy.load("en_core_web_sm")
-doc = nlp("I can't believe it's already 5pm???")
 
-for index, word in enumerate(doc, start=1):
-    print(f"Token_{index}:{word}")
+# Notice 'quick' is lowercase here
+doc = nlp("The quick red fox jumps.")
+
+for token in doc:
+    print(f"{token.text:<8} -> {token.dep_:<8} (head: {token.head.text})")

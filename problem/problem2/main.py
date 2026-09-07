@@ -14,7 +14,7 @@ stemmer = PorterStemmer()
 reviews = [
     "The pasta at Olive Garden was amazing but the waiter, Mike, was rude.",
     "I ordered biryani from Zomato and it arrived cold after 2 hours.",
-    "My mom loves this cafe near Bhubaneswar, she visits every Sunday.",
+    "My mom loves this cafe near Bhubaneswar, she visits every Sunday for tea and the tea was bad because the tea was very sweet",
     "Terrible service! Never ordering from Swiggy again.",
 ]
 
@@ -65,11 +65,39 @@ for i, review in enumerate(reviews):
         "GPE": [],
         "DATE": []
     }
-
     for ent in doc.ents:
         if ent.label_ in entities:
             entities[ent.label_].append(ent.text)
+    # 8. Noun_chunks
+    noun_chunks = [
+        chunk.text
+        for chunk in doc.noun_chunks
+        ]
+    # 9. dependency
+    dependency_tree = [
+        (
+            token.text,
+            token.head.text,
+            token.dep_
+        )
+        for token in doc
+    ]
+    # 10.
+    adjective_noun_pairs = []
 
+    for token in doc:
+        if token.pos_ != "ADJ":
+            continue
+        if token.dep_ == "amod" and token.head.pos_ in ("NOUN", "PROPN"):
+            adjective_noun_pairs.append((token.text, token.head.text))
+
+    # Case 2: predicative — "pasta was amazing" (acomp/attr: adj complements a copula verb)
+        elif token.dep_ in ("acomp", "attr"):
+            verb = token.head
+            for child in verb.children:
+                if child.dep_ in ("nsubj", "nsubjpass") and child.pos_ in ("NOUN", "PROPN"):
+                    adjective_noun_pairs.append((child.text, token.text))
+            
     # Store everything for this review
     review_intelligence[i] = {
         "text": review,
@@ -78,9 +106,10 @@ for i, review in enumerate(reviews):
         "filtered_words": filtered_words,
         "stem_lemma": stem_lemma_pairs,
         "pos_tags": pos_tags,
-        "entities": entities
+        "entities": entities,
+        "noun_chunks": noun_chunks,
+        "dependency_word":dependency_tree,
     }
-    print(entities)
 
 
 # 7. Overall word frequency
@@ -90,5 +119,7 @@ word_frequency = Counter(
 )
 
 review_intelligence["word_frequency"] = word_frequency 
+
+
 
 

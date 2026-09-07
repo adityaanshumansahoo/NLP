@@ -1,0 +1,10 @@
+ner is not 100% accurate.
+POS tells us:"this is an adjective"
+Dependency tells us:"this adjective is related to this word"
+The key point is:amod is not the only way an adjective can be related to a noun.
+amod — adjective directly modifies a noun (terrible service)
+acomp — adjective is a verb's complement via a copula ("was amazing")
+attr — adjective/noun as attribute in a copular sentence
+nsubj / nsubjpass — subject / passive subject of a verb
+appos — an appositive (a renaming phrase: "the waiter, Mike,")
+dobj, pobj — direct object, object of a preposition.

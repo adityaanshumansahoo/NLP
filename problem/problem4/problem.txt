@@ -1,0 +1,24 @@
+Problem: Extract "Achievement Triples" from resume lines
+
+Given a sentence like:
+
+"Led a team of 5 engineers and increased revenue by 30 percent using automation tools."
+
+Write code that extracts an (action, object, metric) triple whenever possible — e.g.:
+
+action = "increased"
+object = "revenue"
+metric = "30 percent"
+
+Requirements:
+
+Use the dependency parse (not just POS patterns) to find the main action verb and its direct object — specifically, find a verb, then look at its children for the one with dependency label dobj (direct object).
+Separately, find any percentage or numeric metric in the sentence using doc.ents (hint: check for the PERCENT or CARDINAL/QUANTITY entity labels).
+Only emit a triple if all three parts (action, object, metric) are found — otherwise skip that sentence.
+Test it against these three sentences and print the results:
+python
+sentences = [
+    "Led a team of 5 engineers and increased revenue by 30 percent using automation tools.",
+    "Reduced deployment time by 40% after migrating to Docker.",
+    "Helped organize weekly meetings.",
+]

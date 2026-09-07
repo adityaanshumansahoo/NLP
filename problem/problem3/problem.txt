@@ -1,0 +1,29 @@
+Project: Resume Skill Extractor
+
+The problem: Recruiters get hundreds of resumes and job descriptions. They want to automatically pull out skills, companies worked at, experience duration, and check if a resume's action verbs sound strong (e.g., "led", "built") vs weak (e.g., "helped", "worked on").
+
+Input:
+
+python
+resumes = [
+    "I worked at Google for 3 years and built scalable backend systems using Python.",
+    "Led a team of 5 engineers at Microsoft and helped launch a new product in 2022.",
+    "Managed data pipelines at Netflix and improved system performance significantly."
+]
+
+What your script must extract from EACH resume line:
+
+Tokenize + Lemmatize — print each token with its lemma (Part 1)
+Named Entities — find companies (ORG) and any dates/durations (DATE) (Part 2)
+ROOT verb — the main action of the sentence (Part 2 — dependency parsing)
+Strong action verbs — use a PhraseMatcher with a list of "strong" verbs: ["led", "built", "managed", "improved"] vs weak ones like ["helped", "worked"] — flag which category applies (Part 3 — PhraseMatcher, same technique as your company-name fix!)
+Skill pattern — build a Matcher pattern that catches VERB + "using" + NOUN or VERB + ADJ + NOUN combos (like "built scalable... systems") to auto-extract skill phrases (Part 3 — Matcher with operators)
+
+Expected output style (for resume 1):
+
+Resume: I worked at Google for 3 years and built scalable backend systems using Python.
+  Companies: Google
+  Durations: 3 years
+  Root verb: worked
+  Action verb strength: weak (worked)
+  Skill phrase matched: built scalable backend systems

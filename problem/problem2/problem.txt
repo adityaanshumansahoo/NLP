@@ -18,12 +18,14 @@ Tokenization
 Stopword removal (show before/after word count)
 Stemming (Porter/Snowball via NLTK) vs Lemmatization (spaCy) — print both side by side so you see the difference (e.g., "ordering" → stem: "order", lemma: "order"; "was" → stem: "wa", lemma: "be")
 Word frequency count (excluding stopwords) — a mini "what words matter most" list
+
 Part 2 — Linguistic Structure
 Full POS tagging (not just adjectives — print token, POS, and tag for every word)
 Named Entity Recognition — extract ORG, PERSON, GPE (location), DATE
 Noun chunks (doc.noun_chunks) — extract full phrases like "the waiter" not just "waiter"
 Dependency parsing — print the full dependency tree (token → head → relation), not just ROOT
 Adjective + noun pairs — pair each adjective with the noun it modifies (e.g., "terrible" → "service") using dependency relations, not just position
+
 Part 3 — Pattern Matching & Rules
 Matcher pattern for first-person statements (PRON + VERB) — same as before
 Matcher pattern for complaint triggers — detect NEGATION + VERB (e.g., "never ordering", "not happy")
@@ -31,7 +33,8 @@ PhraseMatcher — build a list of known brands (Zomato, Swiggy, Olive Garden) an
 Part 4 — Semantic Layer
 Word similarity — use token.similarity() to compare "amazing" vs "terrible" vs "great" (needs en_core_web_md for real vectors)
 Sentence similarity — compare review 1 and review 4 to see if they're semantically close
-Simple rule-based sentiment — score each review using the adjective list from Part 2 + a small polarity dictionary you define yourself
+Simple rule-based sentiment — score each review using the adjective list from Part 2 + a small polarity dictionary you define yourself.
+
 Part 5 — Putting It Together
 Build one function analyze_review(text) that returns a structured dict:
 python

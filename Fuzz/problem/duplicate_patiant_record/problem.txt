@@ -1,0 +1,117 @@
+Here's sample data for Problem #1 (duplicate patient records) — messy on purpose, with genuine duplicates, near-duplicates, and lookalikes that are actually different people (so your program has to be careful, not just aggressive).
+
+python
+patients = [
+    {"id": 1, "name": "Rahul Kumar", "phone": "9835743740", "age": 34},
+    {"id": 2, "name": "Rahul  Kumar", "phone": "9835743740", "age": 34},       # extra space, same person
+    {"id": 3, "name": "Rahul Kumr", "phone": "9835743740", "age": 34},        # typo, same person
+    {"id": 4, "name": "RAHUL KUMAR", "phone": "9835743740", "age": 34},       # case diff, same person
+    {"id": 5, "name": "R. Kumar", "phone": "9835743740", "age": 34},          # abbreviated, same person
+
+    {"id": 6, "name": "Rakul Kumar", "phone": "9123456780", "age": 29},       # DIFFERENT person, similar name
+    {"id": 7, "name": "Rahul Kumar Sahoo", "phone": "9988776655", "age": 41}, # DIFFERENT person, superstring name
+
+    {"id": 8, "name": "Priya Sharma", "phone": "9776655443", "age": 27},
+    {"id": 9, "name": "Priya Sharmaa", "phone": "9776655443", "age": 27},     # typo, same person
+    {"id": 10, "name": "Priya S.", "phone": "9776655443", "age": 27},         # abbreviated, same person
+    {"id": 11, "name": "Preeti Sharma", "phone": "9012345678", "age": 33},    # DIFFERENT person, similar name
+
+    {"id": 12, "name": "Anil Mohanty", "phone": "8877665544", "age": 52},
+    {"id": 13, "name": "Anil  Mohanty ", "phone": "8877665544", "age": 52},   # trailing/extra spaces
+    {"id": 14, "name": "anil mohanty", "phone": "8877665544", "age": 52},     # lowercase, same person
+
+    {"id": 15, "name": "Sunita Devi", "phone": "7788990011", "age": 45},
+    {"id": 16, "name": "Sunita Devi", "phone": "7788990012", "age": 45},      # SAME name, DIFFERENT phone — ambiguous case!
+
+    {"id": 17, "name": "Mohan Das", "phone": "9090909090", "age": 60},
+    {"id": 18, "name": "Mohon Das", "phone": "9090909090", "age": 60},        # typo, same person
+]
+Why I built it this way — the traps are intentional:
+
+Case	IDs	Why it's tricky
+Clear duplicates (typos, spacing, case)	1-5, 8-10, 12-14, 17-18	Should merge — this is the "easy" fuzzy match win
+Similar name, different person	6-7, 11	High name similarity but should NOT merge — this is where phone number as a secondary check saves you
+Same name, different phone	15-16	The hardest case — is this one person with 2 numbers, or 2 different people who happen to share a name? Your program needs to decide a rule here (e.g., "same name + same age → likely same person even with phone mismatch" or flag it for manual review instead of auto-deciding)
+Suggested approach to test against this data:
+
+Fuzzy-match on name alone first — see how many false merges you get (6, 7, 11 should NOT merge but might with too loose a threshold).
+Add phone as a hard secondary signal — same phone + similar name = high confidence merge.
+Decide what to do with case 15-16 explicitly, don't let it fall through silently.
+
+Here's the expected ground-truth clustering for that sample data — what a correct program should produce:
+
+python
+expected_clusters = [
+    # Cluster 1: Rahul Kumar (typos, spacing, case, abbreviation — same phone)
+    {
+        "canonical_name": "Rahul Kumar",
+        "ids": [1, 2, 3, 4, 5],
+        "phone": "9835743740"
+    },
+
+    # Cluster 2: Rakul Kumar — standalone, do NOT merge into Cluster 1
+    {
+        "canonical_name": "Rakul Kumar",
+        "ids": [6],
+        "phone": "9123456780"
+    },
+
+    # Cluster 3: Rahul Kumar Sahoo — standalone, do NOT merge into Cluster 1
+    {
+        "canonical_name": "Rahul Kumar Sahoo",
+        "ids": [7],
+        "phone": "9988776655"
+    },
+
+    # Cluster 4: Priya Sharma (typo, abbreviation — same phone)
+    {
+        "canonical_name": "Priya Sharma",
+        "ids": [8, 9, 10],
+        "phone": "9776655443"
+    },
+
+    # Cluster 5: Preeti Sharma — standalone, do NOT merge into Cluster 4
+    {
+        "canonical_name": "Preeti Sharma",
+        "ids": [11],
+        "phone": "9012345678"
+    },
+
+    # Cluster 6: Anil Mohanty (spacing, case — same phone)
+    {
+        "canonical_name": "Anil Mohanty",
+        "ids": [12, 13, 14],
+        "phone": "8877665544"
+    },
+
+    # Cluster 7 & 8: Sunita Devi — AMBIGUOUS, flagged not auto-merged
+    {
+        "canonical_name": "Sunita Devi",
+        "ids": [15],
+        "phone": "7788990011",
+        "flag": "possible_duplicate_different_phone",
+        "possible_match_id": 16
+    },
+    {
+        "canonical_name": "Sunita Devi",
+        "ids": [16],
+        "phone": "7788990012",
+        "flag": "possible_duplicate_different_phone",
+        "possible_match_id": 15
+    },
+
+    # Cluster 9: Mohan Das (typo — same phone)
+    {
+        "canonical_name": "Mohan Das",
+        "ids": [17, 18],
+        "phone": "9090909090"
+    },
+]
+
+Score summary — 18 patients → 9 clusters (7 clean merges/singles + 1 ambiguous pair kept separate but linked).
+
+Key design decisions baked into this ground truth:
+
+Same phone + similar name → merge automatically. This is your strongest signal — phone numbers rarely collide by coincidence.
+Similar name + different phone → do NOT auto-merge. Name-only similarity is too risky (cases 6, 7, 11 prove this).
+Same name + different phone (15, 16) → flag, don't decide. This is the realistic answer — a program shouldn't silently guess here. It should surface it for a human to confirm, with a flag field like above.
